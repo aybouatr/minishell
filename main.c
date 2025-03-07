@@ -6,112 +6,215 @@
 #include <readline/history.h>
 
 
-// void	ft_lstadd_back(t_list **lst, t_list *new)
-// {
-// 	t_list	*temp;
-
-// 	if (!new)
-// 		return ;
-// 	if (!*lst)
-// 	{
-// 		*lst = new;
-// 		return ;
-// 	}
-// 	temp = *lst;
-// 	while (temp->next)
-// 		temp = temp->next;
-// 	temp->next = new;
-// }
-
-// void	ft_lstclear(t_list **lst, void (*del)(void *))
-// {
-// 	t_list	*temp;
-// 	t_list	*help;
-
-// 	if ((!lst) || (!del))
-// 		return ;
-// 	help = *lst;
-// 	while (help)
-// 	{
-// 		temp = help;
-// 		help = help->next;
-// 		del(temp->content);
-// 		free(temp);
-// 	}
-// 	*lst = NULL;
-// }
-
-// t_list	*ft_lstnew(void *content)
-// {
-// 	t_list	*node;
-
-// 	node = (t_list *)malloc(sizeof(t_list));
-// 	if (!node)
-// 		return (NULL);
-// 	node->content = content;
-// 	node->next = NULL;
-// 	return (node);
-// }
-
-int is_spaces(char c)
+void	ft_add_back(t_l **lst, t_l *new)
 {
-    if (c == ' ' || c == '\t')
-        return (1);
-    return (0);
+	t_l	*temp;
+
+	if (!new)
+		return ;
+	if (!*lst)
+	{
+		*lst = new;
+		return ;
+	}
+	temp = *lst;
+	while (temp->next)
+		temp = temp->next;
+	temp->next = new;
 }
 
-int is_valid_token(char c, int quote, int doubl_quote)
+t_l	*ft_new(int content)
 {
-    if (!is_spaces(c) && ((quote % 2 == 0) || (doubl_quote % 2 == 0)))
-        return (1);
-    return (0);
+	t_l	*node;
+
+	node = (t_l *)malloc(sizeof(t_l));
+	if (!node)
+		return (NULL);
+	node->content = content;
+	node->next = NULL;
+	return (node);
 }
 
-void count_quotes(char c, int *quote, int *double_quote)
+int is_spaces(char c) 
 {
-    if (c == '\'')
-        *quote += 1;
-    if (c == '"' )
-        *double_quote += 1;
+    return (c == ' ' || c == '\t');
 }
 
-short count_nbr_token(char* str)
+void check_quote(t_quote *ifo_quote, char c)
 {
-    int	    (quote) ,(double_quote);
-	short	counter;
-    int i;
-
-	counter = 0;
-    quote = 0;
-    double_quote = 0;
-    while (str && *str)
+    if (c != '\'' && c != '"')
+        return;
+    if (ifo_quote->status_quote == e_close)
     {
-        while (*str && is_spaces(*str) && (quote % 2 == 0) && (double_quote % 2 == 0))
-        { 
-            
-            count_quotes(*str, &quote, &double_quote);
-            str++;
+        if (c == '\'') {
+            ifo_quote->type_quote = e_single_quote;
+            ifo_quote->status_quote = e_open;
+        } else if (c == '"') {
+            ifo_quote->type_quote = e_double_quote;
+            ifo_quote->status_quote = e_open;
         }
-        if (*str && is_valid_token(*str, quote, double_quote))
-            counter++;
-        while (*str && !is_spaces(*str) && (quote % 2 == 0) && (double_quote % 2 == 0))
+    } 
+    else if (ifo_quote->status_quote == e_open)
+    {
+        if ((ifo_quote->type_quote == e_single_quote && c == '\'') || (ifo_quote->type_quote == e_double_quote && c == '"'))
         {
-            count_quotes(*str, &quote, &double_quote);
-            str++;
-        }
-        while (*str && ((quote % 2 == 1) || (double_quote % 2 == 1)))
-        {
-            count_quotes(*str, &quote, &double_quote);
-            str++;
+            ifo_quote->type_quote = e_nothing;
+            ifo_quote->status_quote = e_close;
         }
     }
+}
+
+void insilize_quote(t_quote *quote)
+{
+    quote->status_quote = e_close;
+    quote->type_quote = e_nothing;
+}
+
+size_t	ft_strlen(const char *str)
+{
+	size_t	e;
+
+	e = 0;
+	while (str[e])
+		e++;
+	return (e);
+}
+
+char	*ft_strdup(const char *s1)
+{
+	char	*new_s;
+	int		i;
+
+	i = 0;
+	new_s = (char *)malloc((ft_strlen(s1) + 1) * sizeof(char));
+	if (!new_s)
+		return (NULL);
+	while (s1[i])
+	{
+		new_s[i] = s1[i];
+		i++;
+	}
+	new_s[i] = '\0';
+	return (new_s);
+}
+
+short count_nbr_token(char *str,t_l **head)
+{
+    short counter;
+    short check;
+    t_quote quote;
+
+    insilize_quote(&quote);
+    counter = 0;
+    while (str && *str)
+    {
+        check = 0;
+        while (str && *str && is_spaces(*str))
+            str++;
+        counter++;
+        while (*str && (!is_spaces(*str) && quote.status_quote == e_close)) 
+        {
+            check_quote(&quote, *str);
+            str++;
+        }
+        while (*str && quote.status_quote == e_open)
+        {
+            check_quote(&quote, *str);
+            if (quote.status_quote == e_open && quote.type_quote == e_single_quote)
+                check = 1;
+            str++;
+        }
+        if (check == 1)
+           ft_add_back(head,ft_new((counter - 1)));
+    }
+    if (quote.status_quote == e_open)
+        clean_memory_or_save(NULL,clean);
     return counter;
+}
+
+
+// char** split_to_token(char *input_line)
+// {
+//     t_l *Head;
+//     char **arr;
+//     char word[1000];
+//     int i;
+//     t_quote quote;
+
+//     Head = NULL;
+//     insilize_quote(&quote);
+//     arr = malloc(sizeof(char *) * (count_nbr_token(input_line,&Head) + 1));
+//     if (!arr)
+//         clean_memory_or_save(NULL,clean);
+//     while (input_line && *input_line)
+//     {
+//         i = 0;
+//         while (is_spaces(*input_line))
+//             input_line++;
+
+//         check_quote(&quote, *input_line);
+        
+        
+//     }
+
+
+// }
+
+// void get_tokens(char *str)
+// {
+    
+
+//     split_to_token(str);
+    
+// }
+
+char** split_to_token(char *input_line)
+{
+    t_l *Head;
+    char **arr;
+    char word[1000];
+    int i, token_count;
+    t_quote quote;
+
+    Head = NULL;
+    insilize_quote(&quote);
+    token_count = count_nbr_token(input_line, &Head);
+    arr = malloc(sizeof(char *) * (token_count + 1));
+    if (!arr)
+        clean_memory_or_save(NULL, clean);
+
+    int token_index = 0;
+    while (input_line && *input_line)
+    {
+        i = 0;
+        while (is_spaces(*input_line))
+            input_line++;
+
+        while (*input_line && (!is_spaces(*input_line) || quote.status_quote == e_open))
+        {
+            check_quote(&quote, *input_line);
+            word[i++] = *input_line++;
+        }
+        word[i] = '\0';
+        if (i > 0)
+        {
+            arr[token_index++] = ft_strdup(word);
+        }
+    }
+    arr[token_index] = NULL;
+
+    return arr;
 }
 
 void get_tokens(char *str)
 {
-    short nb = count_nbr_token(str);
-    printf("%d\n\n",nb);
+    char **tokens = split_to_token(str);
+    for (int i = 0; tokens[i] != NULL; i++)
+    {
+        printf("Token %d: %s\n", i, tokens[i]);
+        free(tokens[i]);
+    }
+    free(tokens);
 }
 
 

@@ -1,94 +1,105 @@
+// #include <stdio.h>
+
+// typedef enum
+// {
+//     e_close,
+//     e_open
+// } t_status_quote;
+
+// typedef enum 
+// {
+//     e_nothing,
+//     e_single_quote,
+//     e_double_quote
+
+// } t_type_quote;
+
+// typedef struct
+// {
+//     t_status_quote status_quote;
+//     t_type_quote type_quote;
+// } t_quote;
+
+// int is_spaces(char c) 
+// {
+//     return (c == ' ' || c == '\t');
+// }
+
+// void check_quote(t_quote *ifo_quote, char c) {
+
+//     if (ifo_quote->status_quote == e_close)
+//     {
+//         if (c == '\'') {
+//             ifo_quote->type_quote = e_single_quote;
+//             ifo_quote->status_quote = e_open;
+//         } else if (c == '"') {
+//             ifo_quote->type_quote = e_double_quote;
+//             ifo_quote->status_quote = e_open;
+//         }
+//     } 
+//     else if (ifo_quote->status_quote == e_open)
+//     {
+//         if ((ifo_quote->type_quote == e_single_quote && c == '\'') || (ifo_quote->type_quote == e_double_quote && c == '"'))
+//         {
+//             ifo_quote->type_quote = e_nothing;
+//             ifo_quote->status_quote = e_close;
+//         }
+//     }
+// }
+
+// short count_nbr_token(char *str) {
+//     short counter = 0;
+//     t_quote quote;
+
+//     quote.status_quote = e_close;
+//     quote.type_quote = e_nothing;
+
+//     while (str && *str) {
+//         // Skip spaces
+//         while (str && *str && is_spaces(*str))
+//         {
+//             check_quote(&quote, *str);
+//             str++;
+//         }
+//         if (!*str)
+//             break;
+//         counter++;
+//         // Process the token
+//         while (*str && (!is_spaces(*str) || quote.status_quote == e_open)) 
+//         {
+//             check_quote(&quote, *str);
+//             str++;
+//         }
+//     }
+
+//     return counter;
+// }
+
+// int main()
+// {
+//     char input_line[] = "ls -l | grep \"file hf fk ' '' \" && echo \"Found\" || echo \"Not Found\"";
+//     short token_count = count_nbr_token(input_line);
+//     printf("Number of tokens: %d\n", token_count);
+//     return 0;
+// }
+
 #include <stdio.h>
 
-int is_spaces(char c)
-{
-    if (c == ' ' || c == '\t')
-        return (1);
-    return (0);
-}
+int main() {
+    int i = 1;
 
-int is_valid_token(char c, int quote, int doubl_quote)
-{
-    // Treat tokens as valid when not inside quotes or if inside quotes
-    if (!is_spaces(c) && ((quote % 2 == 0) || (doubl_quote % 2 == 0)))
-        return (1);
-    return (0);
-}
-
-void count_quotes(char c, int *quote, int *double_quote)
-{
-    if (c == '\'')
-        *quote += 1;  // Toggle single quote state
-    if (c == '"')
-        *double_quote += 1;  // Toggle double quote state
-}
-
-short count_nbr_token(char* str)
-{
-    int		(i), (quote) ,(double_quote);
-	short	counter;
-
-	i = 0;
-	counter = 0;
-    quote = 0;
-    double_quote = 0;
-    while (str && str[i])
-    {
-        // Skip spaces outside of quotes
-        while (str[i] && is_spaces(str[i]) && (quote % 2 == 0) && (double_quote % 2 == 0))
+    while (i <= 10) {
+        // If i is an even number, skip the rest of the loop and continue to the next iteration
+        if (i % 2 == 0) 
         {
-            count_quotes(str[i], &quote, &double_quote);
             i++;
+            continue;
         }
 
-        // If we're outside of quotes and we encounter a valid token, increment the counter
-        if (str[i] && is_valid_token(str[i], quote, double_quote))
-        {
-            counter++;
-            // Skip until we hit a space or quote to continue the next token
-        }
-
-        // If inside a quote, keep going until we find the closing quote
-        while (str[i] && !is_spaces(str[i]) && (quote % 2 == 0) && (double_quote % 2 == 0))
-        {
-            count_quotes(str[i], &quote, &double_quote);
-            i++;
-        }
-
-        // Skip over the content inside the quotes as a single token
-        while (str[i] && ((quote % 2 == 1) || (double_quote % 2 == 1)))
-        {
-            count_quotes(str[i], &quote, &double_quote);
-            i++;
-        }
+        // This part of the code will only be executed for odd numbers
+        printf("%d ", i);
+        i++;
     }
-
-    return counter;
-}
-
-int main()
-{
-    // Test cases
-    char *test_str1 = "Hello 'World' \"This\" is a test";
-    char *test_str2 = "  Single   word ";
-    char *test_str3 = "Test with \"double quotes\" and 'single quotes' inside";
-    char *test_str4 = " \"Unclosed quotes";
-    char *test_str5 = "No quotes here";
-
-    printf("Test 1: %s\n", test_str1);
-    printf("Token count: %d\n", count_nbr_token(test_str1));
-
-    printf("\nTest 2: %s\n", test_str2);
-    printf("Token count: %d\n", count_nbr_token(test_str2));
-
-    printf("\nTest 3: %s\n", test_str3);
-    printf("Token count: %d\n", count_nbr_token(test_str3));
-
-    printf("\nTest 4: %s\n", test_str4);
-    printf("Token count: %d\n", count_nbr_token(test_str4));
-
-    printf("\nTest 5: %s\n", test_str5);
-    printf("Token count: %d\n", count_nbr_token(test_str5));
 
     return 0;
 }

@@ -1,6 +1,6 @@
 NAME = minishell
 INCLUDES = minishell.h  # Corrected the typo "includ" to "INCLUDES"
-SRCS = main.c
+SRCS = main.c ft_linklist.c  garbage_collector.c 
 
 # Object files: Replace .c with .o
 OBJECTS = $(SRCS:.c=.o)  # Corrected "Object" to "OBJECTS" (consistent naming convention)
