@@ -1,234 +1,112 @@
 #include "minishell.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <readline/readline.h>
 #include <readline/history.h>
+#include <readline/readline.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
+t_data g_data;
 
-void	ft_add_back(t_l **lst, t_l *new)
+//this functions just for testing ,when finsh test i will deleted
+
+char	*get_name(e_type_token type)
 {
-	t_l	*temp;
-
-	if (!new)
-		return ;
-	if (!*lst)
-	{
-		*lst = new;
-		return ;
-	}
-	temp = *lst;
-	while (temp->next)
-		temp = temp->next;
-	temp->next = new;
+	if (type == e_redir_app)
+		return ("redir_append");
+	if (type == e_pipe)
+		return ("pipe");
+	if (type == e_cmd)
+		return ("cmd");
+	if (type == e_redir_in)
+		return ("redi_in");
+	if (type == e_redir_ou)
+		return ("redir_ou");
+	if (type == e_name_file)
+		return ("Name file");
+	if (type == e_delimeter_here_doc)
+		return ("delemiter here doc");
+	if (type == e_here_doc)
+		return ("here_doc");
+	if (type == e_builtins)
+		return ("builtns");
+	return ("nothing");
 }
 
-t_l	*ft_new(int content)
+void	print_content_tokens_for_testing(t_2d_list *lst_token)
 {
-	t_l	*node;
-
-	node = (t_l *)malloc(sizeof(t_l));
-	if (!node)
-		return (NULL);
-	node->content = content;
-	node->next = NULL;
-	return (node);
-}
-
-int is_spaces(char c) 
-{
-    return (c == ' ' || c == '\t');
-}
-
-void check_quote(t_quote *ifo_quote, char c)
-{
-    if (c != '\'' && c != '"')
-        return;
-    if (ifo_quote->status_quote == e_close)
-    {
-        if (c == '\'') {
-            ifo_quote->type_quote = e_single_quote;
-            ifo_quote->status_quote = e_open;
-        } else if (c == '"') {
-            ifo_quote->type_quote = e_double_quote;
-            ifo_quote->status_quote = e_open;
-        }
-    } 
-    else if (ifo_quote->status_quote == e_open)
-    {
-        if ((ifo_quote->type_quote == e_single_quote && c == '\'') || (ifo_quote->type_quote == e_double_quote && c == '"'))
-        {
-            ifo_quote->type_quote = e_nothing;
-            ifo_quote->status_quote = e_close;
-        }
-    }
-}
-
-void insilize_quote(t_quote *quote)
-{
-    quote->status_quote = e_close;
-    quote->type_quote = e_nothing;
-}
-
-size_t	ft_strlen(const char *str)
-{
-	size_t	e;
-
-	e = 0;
-	while (str[e])
-		e++;
-	return (e);
-}
-
-char	*ft_strdup(const char *s1)
-{
-	char	*new_s;
-	int		i;
+	int	i;
+	int	j;
 
 	i = 0;
-	new_s = (char *)malloc((ft_strlen(s1) + 1) * sizeof(char));
-	if (!new_s)
-		return (NULL);
-	while (s1[i])
+	while (lst_token)
 	{
-		new_s[i] = s1[i];
+		j = 0;
+		printf("Token  %d : %s\n", i, get_name(lst_token->type_token));
+		while (lst_token->content[j])
+		{
+			printf("index %d = %s\n", j, (char *)lst_token->content[j]);
+			j++;
+		}
 		i++;
+		lst_token = lst_token->next;
 	}
-	new_s[i] = '\0';
-	return (new_s);
 }
 
-short count_nbr_token(char *str,t_l **head)
-{
-    short counter;
-    short check;
-    t_quote quote;
+//-------------------------------------start function  signals ---------------------------
 
-    insilize_quote(&quote);
-    counter = 0;
-    while (str && *str)
-    {
-        check = 0;
-        while (str && *str && is_spaces(*str))
-            str++;
-        counter++;
-        while (*str && (!is_spaces(*str) && quote.status_quote == e_close)) 
-        {
-            check_quote(&quote, *str);
-            str++;
-        }
-        while (*str && quote.status_quote == e_open)
-        {
-            check_quote(&quote, *str);
-            if (quote.status_quote == e_open && quote.type_quote == e_single_quote)
-                check = 1;
-            str++;
-        }
-        if (check == 1)
-           ft_add_back(head,ft_new((counter - 1)));
-    }
-    if (quote.status_quote == e_open)
-        clean_memory_or_save(NULL,clean);
-    return counter;
+void sigint_handler(int sig) 
+{
+	printf (" nbr signals %d\n\n",sig);
+    printf("\nCaught SIGINT! Handling...\n");
 }
 
-
-// char** split_to_token(char *input_line)
-// {
-//     t_l *Head;
-//     char **arr;
-//     char word[1000];
-//     int i;
-//     t_quote quote;
-
-//     Head = NULL;
-//     insilize_quote(&quote);
-//     arr = malloc(sizeof(char *) * (count_nbr_token(input_line,&Head) + 1));
-//     if (!arr)
-//         clean_memory_or_save(NULL,clean);
-//     while (input_line && *input_line)
-//     {
-//         i = 0;
-//         while (is_spaces(*input_line))
-//             input_line++;
-
-//         check_quote(&quote, *input_line);
-        
-        
-//     }
+//-------------------------------------------_  end function signals _-__-__-__-__-__-__-__-___-___-__-
 
 
-// }
-
-// void get_tokens(char *str)
-// {
-    
-
-//     split_to_token(str);
-    
-// }
-
-char** split_to_token(char *input_line)
+int	main(int ac, char **av, char **env)
 {
-    t_l *Head;
-    char **arr;
-    char word[1000];
-    int i, token_count;
-    t_quote quote;
+	char *line_input ;
+	char *line_tokens;
+	t_2d_list *lst_token = NULL;
 
-    Head = NULL;
-    insilize_quote(&quote);
-    token_count = count_nbr_token(input_line, &Head);
-    arr = malloc(sizeof(char *) * (token_count + 1));
-    if (!arr)
-        clean_memory_or_save(NULL, clean);
+	start_env();
+	g_data.exit_status = 0;
 
-    int token_index = 0;
-    while (input_line && *input_line)
-    {
-        i = 0;
-        while (is_spaces(*input_line))
-            input_line++;
+	//signal(SIGINT, sigint_handler);
+	while (1)
+	{
+		//// fix all leaks but readline it have a leak reachble memory
+		if (g_data.exit_status == 0)
+			line_input = readline("\033[1;32m->\033[0m minishell ");
+		else 
+			line_input = readline("\033[1;31m->\033[0m minishell ");
 
-        while (*input_line && (!is_spaces(*input_line) || quote.status_quote == e_open))
-        {
-            check_quote(&quote, *input_line);
-            word[i++] = *input_line++;
-        }
-        word[i] = '\0';
-        if (i > 0)
-        {
-            arr[token_index++] = ft_strdup(word);
-        }
-    }
-    arr[token_index] = NULL;
-
-    return arr;
-}
-
-void get_tokens(char *str)
-{
-    char **tokens = split_to_token(str);
-    for (int i = 0; tokens[i] != NULL; i++)
-    {
-        printf("Token %d: %s\n", i, tokens[i]);
-        free(tokens[i]);
-    }
-    free(tokens);
-}
+		add_history(line_input);
+		// printf("%s\n\n", line_input);
+		if (1 == ft_parsing(line_input, &lst_token)	)
+			continue ;
+		if( 1 == handl_wildcards(&lst_token))
+			continue ;
+		//exuctions()
+		start_execution(lst_token);
+		print_content_tokens_for_testing(lst_token);
+		free(line_input);
+	}
 
 
-int main()
-{
-    char* line_input;
-    char *line_tokens;
-    while (1)
-    {
-       line_input = readline("\033[1;32m->\033[0m \033[1;31mminishell \033[0m");
-       //add_history(line_input);
-       printf("%s\n\n",line_input);
-       get_tokens(line_input);
-       free(line_input);
-    }
-    
+	//testing for leaks and  gdb 
+
+
+	// char *line_input = "ls | grep * >> hh";
+	// char *line_tokens;
+	// t_2d_list *lst_token = NULL;
+
+	// start_env();
+
+
+	// ft_parsing(line_input, &lst_token);
+	// handl_wildcards(&lst_token);
+	// print_content_tokens_for_testing(lst_token);
+	// clean_memory("finish",1);
+	// clean_env();
 }

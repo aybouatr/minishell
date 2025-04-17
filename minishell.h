@@ -1,100 +1,202 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/11 16:46:31 by aybouatr          #+#    #+#             */
+/*   Updated: 2025/04/12 11:19:08 by oachbani         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef MINISHELL_H
-#define MINISHELL_H
+# define MINISHELL_H
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <readline/readline.h>
-#include <readline/history.h>
+# include "libft/libft.h"
+# include <dirent.h>
+# include <readline/history.h>
+# include <readline/readline.h>
+# include <signal.h>
+# include <stdio.h>
+# include <stdlib.h>
+# include <unistd.h>
+# include <fcntl.h>
+# include <wait.h>
 
+// HEAD
+// These enums and structs for quotes are not needed by you, I just used them
+// t_data *g_data = NULL;
+// typedef struct s_data
 
-#define fals_e 0
-#define tru_e 1
-
-
-
-typedef enum e_operators
+typedef struct s_data
 {
-    pipeline,
-    and_if,
-    or_if,
-    dollar,
-}e_operator;
+	char			**env;
+	char			*cwd;
+	char			*oldpwd;
+	int				exit_status;
+}					t_data;
 
-// typedef enum e_redirection
-// {
-//     redir_input,
-//     redir_output,
-//     redir_append,
-
-// }e_redirection;
+extern t_data g_data; //// end builtins/re_export.c
 
 typedef enum
 {
-    e_close,
-    e_open
-} t_status_quote;
+	e_close,
+	e_open
+}					t_status_quote;
 
-typedef enum 
+typedef enum
 {
-    e_nothing,
-    e_single_quote,
-    e_double_quote
+	e_nothing,
+	e_single_quote,
+	e_double_quote
 
-} t_type_quote;
+}					t_type_quote;
 
 typedef struct
 {
-    t_status_quote status_quote;
-    t_type_quote type_quote;
-} t_quote;
+	t_status_quote	status_quote;
+	t_type_quote	type_quote;
+}					t_quote;
 
 typedef enum status
 {
-    save = 0,
-    clean = 1,
-}e_status;
+	save = 0,
+	clean = 1,
+}					e_status;
 
+// All enums are used here. When you need the type_token,
+//	you should use this enum.
+// Specifically, you can check for:
+// - e_pipe for pipes
+// - All types of redirections
+// - e_arg for arguments
+// - e_builtins for built-in commands
 typedef enum type_token
 {
-    e_operators,
-    e_redirections,
-    e_arg,
-    e_command,
+	e_pipe,
+	e_redir_in,
+	e_redir_ou,
+	e_redir_app,
+	e_here_doc,
+	e_name_file,
+	e_delimeter_here_doc,
+	e_arg,
+	e_cmd,
+	e_nothin,
+	e_builtins,
 
-}e_type_token;
-
-typedef struct s_token
-{
-    e_type_token type;
-    char*        value;
-}t_token;
-
-//this is the structure of save index of the token between single quotes
-typedef struct s_list
-{
-	int			content;
-	struct s_list	*next;
-}					t_l;
-
-void	ft_add_back(t_l **lst, t_l *new);
-
-//this structure is for the linked list save tokens
-typedef struct list
+}					e_type_token;
+// and this two struct t_token & t_l are not needed by you, I just used them
+typedef struct _list
 {
 	void			*content;
-	struct s_list	*next;
-}	t_list;
+	e_type_token	type_token;
+	struct _list	*next;
+}					t_token;
 
-//this function is for garbage collector 
-void clean_memory_or_save(void *ptr,e_status status);
-void* allocation(size_t nbr_byte);
-void  del(void* ptr);
+typedef struct list
+{
+	int				content;
+	struct list		*next;
+}					t_l;
+// But this struct is the one I send finally when finishing the parsing,
+// so this struct is what you should use
+typedef struct s_lis
+{
+	void			**content;
+	e_type_token	type_token;
+	struct s_lis	*next;
+}					t_2d_list;
 
-//this function is for the linked list
-t_list				*ft_lstnew(void *content);
-int					ft_lstsize(t_list *lst);
-void				ft_lstadd_back(t_list **lst, t_list *new);
-void				ft_lstclear(t_list **lst, void (*del)(void *));
+void				ft_tokenadd_back(t_token **lst, t_token *new);
+t_token				*ft_tokennew(void *content);
+void				clean_memory_or_save(void *ptr, e_status status);
+void				clean_memory(const char *meesage, int nb_exit);
+void				*allocation(size_t nbr_byte);
+t_2d_list			*ft_2d_lstnew(void **content);
+void				**allocation_2d(size_t nbr_byte);
+void				ft_lstadd_2d_back(t_2d_list **lst, t_2d_list *new);
+void				del(void *ptr);
+void				clean_memory_or_save_2d(void **ptr, e_status status);
+char				**get_values_the_keys(char **arr);
+char				*remplace_keys_to_values(char *str, char **arr);
+char				*get_arg_expand(char *str);
+char				*get_value_from_env(char *key);
+void				ft_expand(t_token **lst_to, t_l *head);
+int					is_need_expand(t_l *list, int i);
+int					len_arr(char **arr, char *str);
+int					count_wrd_expand(char *str);
+int					len_key_expand(char *str);
+int					is_shoold_expand(t_quote quote, char c);
 
-# endif
+int					count_nbr_token(char *str, int *counter, t_l **head);
+char				*ft_operator_token(char **str);
+char				*get_token(t_quote *quot, char **input_line);
+char				**split_to_token(char *input_line, t_l **head);
+e_type_token		get_type_token(e_type_token prev, char *content);
+char				*sstrdup(const char *s);
+void				check_quote(t_quote *ifo_quote, char c);
+void				insilize_quote(t_quote *quote);
+void				skip_token(char **str);
+void				assign_name_to_token(char **tokens, t_token **list);
+void				hand_quote(t_token **list);
+char				*delete_quote(char *str);
+char				*get_name(e_type_token type);
+int					is_not_opertor(char c, t_quote quote);
+int					is_spaces(char c);
+t_l					*ft_new(int content);
+void				ft_add_back(t_l **lst, t_l *new);
+int					is_opertor_or_redire(t_token *token);
+int					len_not_oper_redir(t_token *pos);
+void				split_token_to_opertor(t_token *Head,
+						t_2d_list **lst_token);
+t_2d_list			*rename_tokents(t_2d_list *lst_t, t_token *list);
+int					ft_parsing(char *str, t_2d_list **lst_tok);
+size_t				ft_sizetoken(t_token *head);
+int					is_builts(char *str);
+void				hand_quote(t_token **list);
+int					ft_grammer(t_token *lst);
+t_token				*match_files(const char *pattern);
+int					is_found_wildcards(void **arr);
+char				**copy_lst_into_arr(t_token *lst);
+void				**processing_wildcards(char **arr);
+int					handl_wildcards(t_2d_list **lst_token);
+char				*grbc_strdup(const char *s);
+int					ft_fnmatch(const char *pattern, char *name_file);
+
+char				*ft_itoa_grbg(int n);
+void				print_content_tokens_for_testing(t_2d_list *lst_token);
+char				*get_name(e_type_token type);
+char				*process_token_with_quote(char *str, t_quote *quote,
+						int *counter, short *check);
+t_2d_list			*ft_2d_lstnew_env(void **conten);
+void				clean_env_or_save(char *ptr, e_status status);
+void				clean_env_or_save_2d(char **ptr, e_status status);
+void				clean_env(void);
+char				**allocation_env_2d(size_t nbr_ptr);
+int					tab_counter(char **env);
+void				start_env(void);
+char				*ft_strdup_env(char *s);
+void				*allocation_env(size_t nbr_byt);
+
+/*------execution---------*/
+
+char	*ft_check(char *str, char *path);
+char	*ft_checkfirst(char *str);
+char	*get_path();
+void	start_execution(t_2d_list *tokens);
+void	execute_command(t_2d_list *tokens);
+void	error(int i);
+int		work_with_pipe(int *status, t_2d_list *tokens);
+int		output_redirection(t_2d_list *tokens);
+int		input_redirection(t_2d_list *tokens);
+void	waitforchild(pid_t pid , int *status);
+int 	execution_machine(t_2d_list **tokens);
+
+/*--------builtins-----------*/
+void	ft_get_envdata();
+int		search_the_env(char *search);
+char	**del_tab_2d_arr(int del);
+
+#endif
