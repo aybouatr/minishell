@@ -56,8 +56,7 @@ void	print_content_tokens_for_testing(t_2d_list *lst_token)
 
 void sigint_handler(int sig) 
 {
-	printf (" nbr signals %d\n\n",sig);
-    printf("\nCaught SIGINT! Handling...\n");
+	
 }
 
 //-------------------------------------------_  end function signals _-__-__-__-__-__-__-__-___-___-__-
@@ -72,7 +71,8 @@ int	main(int ac, char **av, char **env)
 	start_env();
 	g_data.exit_status = 0;
 
-	//signal(SIGINT, sigint_handler);
+	signal(SIGINT, sigint_handler);
+    signal(SIGQUIT, SIG_IGN);
 	while (1)
 	{
 		//// fix all leaks but readline it have a leak reachble memory
