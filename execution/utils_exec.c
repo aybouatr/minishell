@@ -6,19 +6,22 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/25 15:18:47 by oachbani          #+#    #+#             */
-/*   Updated: 2025/04/03 16:27:38 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/04/16 14:07:12 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-char	*get_path()
+char	*get_path(char **env)
 {
-	while (*g_data.env)
+	char **tmp;
+
+	tmp = env;
+	while (*tmp)
 	{
-		if (ft_strncmp(*g_data.env, "PATH=", 5) == 0)
-			return (*g_data.env + 5);
-		g_data.env++;
+		if (ft_strncmp(*tmp, "PATH=", 5) == 0)
+			return (*tmp + 5);
+		tmp++;
 	}
 	return (NULL);
 }
@@ -56,6 +59,32 @@ char	*ft_check(char *str, char *path)
 	}
 	ft_free(parse);
 	return (free(nstr), NULL);
+}
+
+char	*ft_strjoin_gc(char const *s1, char const *s2)
+{
+	size_t	i;
+	char	*p;
+	int		j;
+
+	if (!s1 && !s2)
+		return (NULL);
+	if (!s1 && s2)
+		return (ft_strdup_env(s2));
+	if (s1 && !s2)
+		return (ft_strdup_env(s1));
+	i = ft_strlen(s1) + ft_strlen(s2);
+	p = allocation((i + 1) * sizeof(char));
+	if (!p)
+		return (NULL);
+	i = -1;
+	j = -1;
+	while (s1[++i])
+		p[i] = s1[i];
+	while (s2[++j])
+		p[i++] = s2[j];
+	p[i] = '\0';
+	return (p);
 }
 
 

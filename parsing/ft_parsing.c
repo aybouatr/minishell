@@ -37,6 +37,8 @@ int	len_not_oper_redir(t_token *pos)
 	return (counter);
 }
 
+
+
 void	split_token_to_opertor(t_token *Head, t_2d_list **lst_token)
 {
 	t_2d_list	*lst;
@@ -83,6 +85,69 @@ t_2d_list	*rename_tokents(t_2d_list *lst_t, t_token *list)
 	return (lst);
 }
 
+int is_redir(t_2d_list* lst)
+{
+	if (lst && (lst->type_token == e_redir_app || lst->type_token == e_here_doc || lst->type_token == e_redir_ou || lst->type_token == e_redir_in))
+		return (1);
+	return (0);
+}
+
+int is_next_redir_and_next_next_arg(t_2d_list* lst)
+{
+	if (lst && is_redir(lst) && lst->next && lst->next->type_token == e_cmd)
+		return (1);
+	return (0);
+}
+
+char** str_joine_2d(char** arr1,char** arr2)
+{
+	int counter1;
+	int counter2;
+	int i;
+	char** new_arr;
+
+	counter1 = 0;
+	counter2 = 0;
+	i = 0;
+	while (arr1 && arr1[counter1])
+		counter1++;
+	while (arr2 && arr2[counter2])
+		counter2++;
+	new_arr = allocation_2d((counter1 + counter2 + 1));
+	counter1 = 0;
+	counter2 = 0;
+	while (arr1 && arr1[counter1])
+		new_arr[i++] = arr1[counter1++];
+	while (arr2 && arr2[counter2])
+		new_arr[i++] = arr2[counter2++];
+	new_arr[i] = NULL;
+	return (new_arr);
+}
+
+t_2d_list* deplacement_arg_near_cmd(t_2d_list* lst_token)
+{
+	t_2d_list* temp;
+	t_2d_list* head;
+	char**     save_arg;
+	int check;
+
+	temp = lst_token;
+	head =    temp;
+	check = 0;
+	while (temp)
+	{
+		if ( temp->next && temp->type_token == e_cmd && is_next_redir_and_next_next_arg(temp->next))
+		{
+			temp->content = str_joine_2d(temp->content,temp->next->next->content);
+			temp->next->next = temp->next->next->next;
+			temp = temp->next->next;
+		}
+		else
+			temp = temp->next;
+	}
+	return (head);
+}
+
 int	ft_parsing(char *str, t_2d_list **lst_tok)
 {
 	t_l			*head;
@@ -99,10 +164,12 @@ int	ft_parsing(char *str, t_2d_list **lst_tok)
 	assign_name_to_token(tokens, &list);
 	if (1 == ft_grammer(list))
 		return (1);
-	hand_quote(&list);
+	//ft_expend_spicifique_cases(list,head);
+	//hand_quote(&list);
 	ft_expand(&list, head);
 	split_token_to_opertor(list, &lst_token);
 	lst_token = rename_tokents(lst_token, list);
+	lst_token = deplacement_arg_near_cmd(lst_token);
 	*lst_tok = lst_token;
 	return (0);
 }

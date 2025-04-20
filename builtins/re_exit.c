@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/10 16:01:58 by oachbani          #+#    #+#             */
-/*   Updated: 2025/04/12 11:16:17 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/04/15 15:26:48 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ int	ft_not_digit(char *str)
 
 void	re_exit(char **str)
 {
+	printf("exit\n");
 	if (str[1])
 	{
 		if (ft_not_digit(str[1]))

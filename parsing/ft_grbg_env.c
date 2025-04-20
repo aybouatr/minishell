@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_strdup_env_help.c                               :+:      :+:    :+:   */
+/*   ft_grbg_env.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aybouatr <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 15:19:40 by aybouatr          #+#    #+#             */
-/*   Updated: 2025/04/11 15:19:42 by aybouatr         ###   ########.fr       */
+/*   Updated: 2025/04/18 16:35:24 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,6 +90,6 @@ void	clean_env_or_save_2d(char **ptr, e_status status)
 
 void	clean_env(void)
 {
-	clean_env_or_save_2d(NULL, clean);
 	clean_env_or_save(NULL, clean);
+	clean_env_or_save_2d(NULL, clean);
 }

@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 12:47:16 by oachbani          #+#    #+#             */
-/*   Updated: 2025/04/12 11:16:17 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/04/18 16:45:35 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,12 +14,14 @@
 
 char **del_tab_2d_arr(int del)
 {
-	while (g_data.env[del])
+	// g_data.env[del] = NULL;
+	while (g_data.env[del + 1])
 	{
-		free(g_data.env[del]);
 		g_data.env[del] = g_data.env[del+1];
 		del++;
 	}
+	g_data.env[del] = NULL;
+	return(g_data.env);
 }
 
 int	search_the_env(char *search)
@@ -45,7 +47,7 @@ void	re_unset(char **str)
 
 	if (!str || !*str)
 		return ;
-	i = 0;
+	i = 1;
 	while (str[i])
 	{
 		removable = search_the_env(str[i]);

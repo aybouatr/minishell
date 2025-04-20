@@ -54,12 +54,39 @@ void	print_content_tokens_for_testing(t_2d_list *lst_token)
 
 //-------------------------------------start function  signals ---------------------------
 
-void sigint_handler(int sig) 
+void handle_eof()
 {
-	
+	clean_env();
+	clean_memory("finx",0);
+	exit(0);
+}
+
+// void sigint_handler(int sig) {
+//     //(void)sig;
+//    write(1,"\n\033[1;31m-> \033[0m minishell ",27);
+// }
+
+// void sigquit_handler(int sig) {
+//     (void)sig;
+//     write(STDOUT_FILENO, "\nCaught Ctrl+\\! Ignoring.\n", 27);
+// }
+
+void handle_sigint(int sig) {
+    (void)sig;
+    write(STDOUT_FILENO, "\n", 1);                    // move to new line
+    rl_replace_line("", 0);                          // clear current input line
+    rl_on_new_line();                                // tell readline we're on a new line
+    rl_redisplay();                                  // redisplay prompt
+}
+
+// --- Setup signal handling ---
+void setup_signals(void) {
+    signal(SIGINT, handle_sigint);   // Ctrl+C → custom prompt
+    signal(SIGQUIT, SIG_IGN);        // Ctrl+\ → ignored
 }
 
 //-------------------------------------------_  end function signals _-__-__-__-__-__-__-__-___-___-__-
+
 
 
 int	main(int ac, char **av, char **env)
@@ -71,25 +98,30 @@ int	main(int ac, char **av, char **env)
 	start_env();
 	g_data.exit_status = 0;
 
-	signal(SIGINT, sigint_handler);
-    signal(SIGQUIT, SIG_IGN);
-	while (1)
+	setup_signals();
+
+	//signal(SIGINT, sigint_handler);
+	//signal(SIGINT, sigint_handler);   // Ctrl+C
+   // signal(SIGQUIT, sigquit_handler); // Restore default Ctrl+\ behavior
+	while (1337)
 	{
 		//// fix all leaks but readline it have a leak reachble memory
 		if (g_data.exit_status == 0)
-			line_input = readline("\033[1;32m->\033[0m minishell ");
+			line_input = readline("\033[1;32m-> \033[0m minishell ");
 		else 
-			line_input = readline("\033[1;31m->\033[0m minishell ");
-
-		add_history(line_input);
+			line_input = readline("\033[1;31m-> \033[0m minishell ");
+		if (!line_input)
+			handle_eof();
+		else
+			add_history(line_input);
 		// printf("%s\n\n", line_input);
 		if (1 == ft_parsing(line_input, &lst_token)	)
 			continue ;
 		if( 1 == handl_wildcards(&lst_token))
 			continue ;
 		//exuctions()
-		start_execution(lst_token);
 		print_content_tokens_for_testing(lst_token);
+		//start_execution(lst_token);
 		free(line_input);
 	}
 
@@ -97,16 +129,16 @@ int	main(int ac, char **av, char **env)
 	//testing for leaks and  gdb 
 
 
-	// char *line_input = "ls | grep * >> hh";
-	// char *line_tokens;
-	// t_2d_list *lst_token = NULL;
+// 	char *line_input = "ls | grep * >> hh | echo $??$USER";
+// 	char *line_tokens;
+// 	t_2d_list *lst_token = NULL;
 
-	// start_env();
+// 	start_env();
 
 
-	// ft_parsing(line_input, &lst_token);
-	// handl_wildcards(&lst_token);
-	// print_content_tokens_for_testing(lst_token);
-	// clean_memory("finish",1);
-	// clean_env();
-}
+// 	ft_parsing(line_input, &lst_token);
+// 	handl_wildcards(&lst_token);
+// 	print_content_tokens_for_testing(lst_token);
+// 	clean_memory("finish",1);
+// 	clean_env();
+ }

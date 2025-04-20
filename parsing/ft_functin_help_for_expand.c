@@ -61,9 +61,7 @@ int	len_key_expand(char *str)
 	i = 0;
 	while (str[i] && str[i] != '$' && !is_spaces(str[i]) && str[i] != '\''
 		&& str[i] != '"')
-	{
 		i++;
-	}
 	return (i);
 }
 

@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 16:46:31 by aybouatr          #+#    #+#             */
-/*   Updated: 2025/04/12 11:19:08 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/04/19 16:30:18 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,10 +34,12 @@ typedef struct s_data
 	char			**env;
 	char			*cwd;
 	char			*oldpwd;
+	int				or_stdout;
+	int				or_stdin;	
 	int				exit_status;
 }					t_data;
 
-extern t_data g_data; //// end builtins/re_export.c
+extern t_data g_data; // end builtins/re_export.c
 
 typedef enum
 {
@@ -179,24 +181,45 @@ int					tab_counter(char **env);
 void				start_env(void);
 char				*ft_strdup_env(char *s);
 void				*allocation_env(size_t nbr_byt);
+char				*ft_itoa_grbg(int n);
 
 /*------execution---------*/
 
 char	*ft_check(char *str, char *path);
 char	*ft_checkfirst(char *str);
-char	*get_path();
+char	*get_path(char **env);
 void	start_execution(t_2d_list *tokens);
 void	execute_command(t_2d_list *tokens);
 void	error(int i);
-int		work_with_pipe(int *status, t_2d_list *tokens);
+void 	dup_intializer(void);
+int		work_with_pipe(int *status, t_2d_list **tokens);
 int		output_redirection(t_2d_list *tokens);
 int		input_redirection(t_2d_list *tokens);
 void	waitforchild(pid_t pid , int *status);
 int 	execution_machine(t_2d_list **tokens);
+char	*ft_strjoin_gc(char const *s1, char const *s2);
+void	 handle_heredoc(pid_t pid , int status);
+char	*add_nl(char *str);
+
+
+
+
+
+
+
 
 /*--------builtins-----------*/
 void	ft_get_envdata();
 int		search_the_env(char *search);
 char	**del_tab_2d_arr(int del);
+void	re_cd(char *str);
+void 	re_echo(char **str);
+void	re_env();
+void	re_exit(char **str);
+void	re_export(char **str);
+void	re_pwd(void);
+void	re_unset(char **str);
+char	*get_oldpwd(char **env);
+void	edit_var(int i, char *str);
 
 #endif

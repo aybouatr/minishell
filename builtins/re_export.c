@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 15:55:26 by oachbani          #+#    #+#             */
-/*   Updated: 2025/04/12 11:16:17 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/04/13 11:37:18 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,9 +159,11 @@ void	join_the_value(char *str, char *new)
 int	check_the_special(char *s)
 {
 	int	i;
+	int	equ_len;
 
 	i = -1;
-	while(s[++i])
+	equ_len = ft_equal_len(s);
+	while(++i < equ_len)
 		if (!ft_isalnum(s[i]) && s[i] != '+' && s[i] != '=')
 			return (0);
 	return(1);
@@ -176,12 +178,12 @@ int	export_it(char *str)
 	if (!ft_isalpha(str[i]))
 	{
 		printf("minishell: export: `%s': not a valid identifier\n", str);
-		return(0);
+		return(1);
 	}
 	if (!check_the_special(str))
 	{
 		printf("minishell: export: `%s': not a valid identifier\n", str);
-		return(0);
+		return(1);
 	}	
 	export = ft_strchr(str, '+');
 	if (export)
@@ -194,6 +196,7 @@ int	export_it(char *str)
 	}
 	else
 		export_value(str);
+	return(0);
 }
 
 void	sort_env(void)
@@ -228,7 +231,7 @@ void	re_export(char **str)
 	else if (str[1])
 	{
 		while(str[++i])
-			export_it(str[i]);
+			g_data.exit_status = export_it(str[i]);
 		sort_env();
 	}
 }

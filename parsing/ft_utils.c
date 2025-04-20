@@ -46,11 +46,9 @@ int	is_spaces(char c)
 	return (c == ' ' || c == '\t');
 }
 
-char	*process_token_with_quote(char *str, t_quote* quote, int *counter,
-		short *check)
+char	*process_token_with_quote(char *str, t_quote* quote, int *counter, short *check)
 {
-	while (*str && is_not_opertor(*str, *quote) && (!is_spaces(*str)
-			|| quote->status_quote == e_open))
+	while (*str && is_not_opertor(*str, *quote) && (!is_spaces(*str) || quote->status_quote == e_open))
 	{
 		check_quote(quote, *str);
 		if ((*str == '$' && (*(str + 1) == '"' || *(str + 1) == '\''))
