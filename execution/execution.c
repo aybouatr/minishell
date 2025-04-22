@@ -383,29 +383,29 @@ void	for_norm(int check, char **line , char **new)
 		*new = *line;
 }
 
-void	ft_here_doc(char *limiter, t_2d_list *tokens)
-{
-	char	*line;
-	pid_t	pid;
-	int		check;
-	char	*new;
+// void	ft_here_doc(char *limiter, t_2d_list *tokens)
+// {
+// 	char	*line;
+// 	pid_t	pid;
+// 	int		check;
+// 	char	*new;
 
-	int fd = open("/tmp/here_doc", O_CREAT | O_RDWR | O_TRUNC , 0644);
-	check = check_ifquoted(limiter);
-	limiter = delete_quote(limiter);
-	line = get_next_line(0);
-	while (1)
-	{
-		for_norm(check, &line, &new);
-		if (cold_arms(new, limiter) == 2)
-			break;
-		write(fd, new, ft_strlen(new));
-		free(line);
-		line = get_next_line(0);
-	}
-	free(line);
-	exit(EXIT_SUCCESS);
-}
+// 	int fd = open("/tmp/here_doc", O_CREAT | O_RDWR | O_TRUNC , 0644);
+// 	check = check_ifquoted(limiter);
+// 	limiter = delete_quote(limiter);
+// 	line = get_next_line(0);
+// 	while (1)
+// 	{
+// 		for_norm(check, &line, &new);
+// 		if (cold_arms(new, limiter) == 2)
+// 			break;
+// 		write(fd, new, ft_strlen(new));
+// 		free(line);
+// 		line = get_next_line(0);
+// 	}
+// 	free(line);
+// 	exit(EXIT_SUCCESS);
+// }
 
 void handle_heredoc(pid_t pid , int status)
 {

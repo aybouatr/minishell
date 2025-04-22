@@ -121,6 +121,7 @@ int	main(int ac, char **av, char **env)
 			continue ;
 		//exuctions()
 		print_content_tokens_for_testing(lst_token);
+		clean_memory("",0);
 		//start_execution(lst_token);
 		free(line_input);
 	}

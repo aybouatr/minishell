@@ -42,14 +42,15 @@ char	*remplace_keys_to_values_here_doc(char *str, char **arr)
 	k = 0;
 	while (str && str[i])
 	{
-		if (str[i] == '$' && str[i + 1] != '\0' && str[i + 1] != '$' && str[i
-				+ 1] != '\'' && !is_spaces(str[i + 1]))
+		if (str[i] == '$' && (ft_isalpha(str[i + 1]) || str[i + 1] == '?' ))
 		{
 			i++;
 			index_value = 0;
-			while (str[i] && str[i] != '$' && str[i] != '\''
-				&& !is_spaces(str[i]))
+			if (str[i] == '?')
 				i++;
+			else
+				while (str[i] && ft_isalpha(str[i]))
+					i++;
 			while (arr && arr[k] != NULL && arr[k][index_value] != '\0')
 				value[j++] = arr[k][index_value++];
 			k++;
@@ -70,16 +71,22 @@ char	*get_arg_expand_for_here_doc(char *str)
 	i = 0;
 	while (str && str[++i] != '\0' )
 	{
-		if (str[i - 1] == '$' && str[i] != '$' && str[i] != '\''
-			&& !is_spaces(str[i]))
+		if (str[i - 1] == '$'  &&  (ft_isalpha(str[i]) || str[i] == '?' ))
 		{
 			j = 0;
 			arr_words[index_word] = (char *)allocation(len_key_expand(&str[i])
 					+ 1);
-			while (str[i] && str[i] != '$' && str[i] != '"' && str[i] != '\''
-				&& !is_spaces(str[i]))
-				arr_words[index_word][j++] = str[i++];
-			arr_words[index_word++][j] = '\0';
+			if (str[i] == '?')
+			{
+				i++;
+				arr_words[index_word++] = ft_strdup_env("?");
+			}
+			else
+			{
+				while (str[i] && ft_isalpha(str[i]))
+					arr_words[index_word][j++] = str[i++];
+				arr_words[index_word++][j] = '\0';
+			}
 		}
 	}
 	arr_words[index_word] = NULL;
@@ -117,13 +124,15 @@ char	*remplace_keys_to_values(char *str, char **arr)
 	while (str && str[i])
 	{
 		check_quote(&quote,str[i]);
-		if (quote.type_quote != e_single_quote && str[i] == '$' && str[i  + 1] != '$' && str[i] != '\'' && str[i] != '"' && str[i + 1] != '\'' && str[i + 1] != '"' && !is_spaces(str[i]))
+		if (quote.type_quote != e_single_quote && str[i] == '$' && (ft_isalpha(str[i + 1]) || str[i + 1] == '?' ))
 		{
 			i++;
 			index_value = 0;
-			while (str[i] && str[i] != '$' && str[i] != '\'' && str[i] != '"'
-				&& !is_spaces(str[i]))
+			if (str[i] == '?')
 				i++;
+			else
+				while (str[i] && ft_isalpha(str[i]))
+					i++;
 			while (arr && arr[k] != NULL && arr[k][index_value] != '\0')
 				value[j++] = arr[k][index_value++];
 			k++;
@@ -131,8 +140,6 @@ char	*remplace_keys_to_values(char *str, char **arr)
 		else
 			value[j++] = str[i++];
 	}
-	if (str[i - 1] == '$')
-		value[j++] = '$';
 	return (value[j] = '\0', value);
 }
 
@@ -149,14 +156,22 @@ char* get_arg_expand(char* str)
 	check_quote(&quote,str[i]);
 	while (str && str[++i] != '\0' )
 	{
-		if (quote.type_quote != e_single_quote && str[i - 1] == '$'  &&  str[i] != '$' && str[i] != '\'' && str[i] != '"' && str[i + 1] != '\'' && str[i + 1] != '"' && !is_spaces(str[i]))
+		if (quote.type_quote != e_single_quote && str[i - 1] == '$'  &&  (ft_isalpha(str[i]) || str[i] == '?' ))
 		{
 			j = 0;
 			arr_words[index_word] = (char *)allocation(len_key_expand(&str[i])
 					+ 1);
-			while (str[i] && str[i] != '$' && str[i] != '"' && str[i] != '\'' && !is_spaces(str[i]))
-				arr_words[index_word][j++] = str[i++];
-			arr_words[index_word++][j] = '\0';
+			if (str[i] == '?')
+			{
+				i++;
+				arr_words[index_word++] = ft_strdup_env("?");
+			}
+			else
+			{
+				while (str[i] && ft_isalpha(str[i]))
+					arr_words[index_word][j++] = str[i++];
+				arr_words[index_word++][j] = '\0';
+			}
 		}
 		check_quote(&quote,str[i]);
 	}

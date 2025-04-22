@@ -37,8 +37,6 @@ int	len_not_oper_redir(t_token *pos)
 	return (counter);
 }
 
-
-
 void	split_token_to_opertor(t_token *Head, t_2d_list **lst_token)
 {
 	t_2d_list	*lst;
@@ -148,6 +146,79 @@ t_2d_list* deplacement_arg_near_cmd(t_2d_list* lst_token)
 	return (head);
 }
 
+// ------------- start here_doc -------
+
+
+int read_from_here_doc(char* limiter,int *status)
+{
+	int satus_child;
+	int fd_pip[2];
+	pid_t id_pro;
+	int check;
+	char	*line, *new;
+
+	id_pro = fork();
+	if (id_pro == -1)
+	{
+		clean_memory("faild fork",1);
+		clean_env();
+		exit(1);
+	}
+	if (id_pro == 0)
+	{
+		signal(SIGINT, SIG_DFL);
+        signal(SIGQUIT, SIG_IGN);
+		while (1)
+		{
+			check = check_ifquoted(limiter);
+			limiter = delete_quote(limiter);
+			line = get_next_line(0);
+			close(fd_pip[1]);
+			for_norm(check, &line, &new);
+			if (cold_arms(new, limiter) == 2)
+				break;
+			write(fd_pip[0], new, ft_strlen(new));
+			free(line);
+			line = get_next_line(0);
+		}
+		free(line);
+		exit(EXIT_SUCCESS);
+	}
+	else
+	{
+		close(fd_pip[0]);
+      	waitpid(id_pro, &satus_child, 0);
+        if (WIFSIGNALED(satus_child))
+		{
+			*status = 1;
+		}
+	}
+	return (fd_pip[0]);
+}
+
+int ft_here_doc(t_2d_list** lst_token)
+{
+	t_2d_list* temp_lst;
+	t_2d_list* head_lst;
+	int status;
+
+	temp_lst = *lst_token;
+	head_lst = temp_lst;
+	status = 0;
+	while (temp_lst && status == 0)
+	{
+		if (temp_lst->type_token == e_here_doc)
+		{
+			temp_lst->content[0] = ft_itoa(read_from_here_doc(temp_lst->content[1],&status));
+			temp_lst->content[1] = NULL;
+		}
+		
+		temp_lst = temp_lst->next;
+	}
+	*lst_token = head_lst;
+	return (status);
+}
+
 int	ft_parsing(char *str, t_2d_list **lst_tok)
 {
 	t_l			*head;
@@ -170,6 +241,8 @@ int	ft_parsing(char *str, t_2d_list **lst_tok)
 	split_token_to_opertor(list, &lst_token);
 	lst_token = rename_tokents(lst_token, list);
 	lst_token = deplacement_arg_near_cmd(lst_token);
+	if(ft_here_doc(&lst_token) == 1)
+		return (1);
 	*lst_tok = lst_token;
 	return (0);
 }

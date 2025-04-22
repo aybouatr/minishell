@@ -183,6 +183,14 @@ char				*ft_strdup_env(char *s);
 void				*allocation_env(size_t nbr_byt);
 char				*ft_itoa_grbg(int n);
 
+
+int is_redir(t_2d_list* lst);
+int is_next_redir_and_next_next_arg(t_2d_list* lst);
+char** str_joine_2d(char** arr1,char** arr2);
+t_2d_list* deplacement_arg_near_cmd(t_2d_list* lst_token);
+char	*remplace_keys_to_values_here_doc(char *str, char **arr);
+char	*get_arg_expand_for_here_doc(char *str);
+
 /*------execution---------*/
 
 char	*ft_check(char *str, char *path);
