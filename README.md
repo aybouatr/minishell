@@ -83,7 +83,7 @@
 
 This project was developed by **Ayoub** and **Otman** working together.
 
-- **Ayoub** focused on building the parsing part (input reading, tokenization, and command structure).
+- **I was** focused on building the parsing part (input reading, tokenization, and command structure).
 - **Otman** focused on the execution part (process management, pipes, redirections).
 - We collaborated on integration, debugging, and ensuring the shell worked smoothly.
 
