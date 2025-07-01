@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/22 14:55:18 by oachbani          #+#    #+#             */
-/*   Updated: 2025/03/20 23:31:07 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/11 19:31:27 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ typedef struct s_list
 	struct s_list	*next;
 }	t_list;
 
-int 		ft_strcmp(char *s1, char *s2);
+int			ft_strcmp(char *s1, char *s2);
 void		ft_free(char **tab);
 char		*get_next_line(int fd);
 int			ft_isalpha(int c);

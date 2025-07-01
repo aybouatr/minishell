@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/08 11:25:00 by aybouatr          #+#    #+#             */
-/*   Updated: 2025/04/12 11:56:16 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/07 11:33:00 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 t_token	*match_files(const char *pattern)
 {
 	struct dirent	*entry;
-	int				index;
 	t_token			*lst;
 	DIR				*dp;
 
@@ -82,7 +81,6 @@ char	**copy_lst_into_arr(t_token *lst)
 void	**processing_wildcards(char **arr)
 {
 	int		index;
-	int		i;
 	t_token	*stock;
 	t_token	*lst_arr;
 

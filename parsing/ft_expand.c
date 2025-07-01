@@ -6,113 +6,16 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 01:27:05 by aybouatr          #+#    #+#             */
-/*   Updated: 2025/04/16 17:03:25 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/11 19:30:32 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-char	**get_values_the_keys(char **arr)
-{
-	int	i;
-
-	i = 0;
-	while (arr && arr[i])
-	{
-		if (ft_strncmp(arr[i], "?",1) == 0)
-		{
-			arr[i] = ft_strjoin_gc(ft_itoa_grbg(g_data.exit_status),&arr[i][1]);
-		}
-		else
-			arr[i] = get_value_from_env(arr[i]);
-		i++;
-	}
-	return (arr);
-}
-
-char	*remplace_keys_to_values_here_doc(char *str, char **arr)
-{
-	char	*value;
-
-	int (j), (i), (index_value), (k);
-	arr = get_values_the_keys(arr);
-	value = (char *)allocation(len_arr(arr, str) + 1);
-	i = 0;
-	j = 0;
-	k = 0;
-	while (str && str[i])
-	{
-		if (str[i] == '$' && (ft_isalpha(str[i + 1]) || str[i + 1] == '?' ))
-		{
-			i++;
-			index_value = 0;
-			if (str[i] == '?')
-				i++;
-			else
-				while (str[i] && ft_isalpha(str[i]))
-					i++;
-			while (arr && arr[k] != NULL && arr[k][index_value] != '\0')
-				value[j++] = arr[k][index_value++];
-			k++;
-		}
-		else
-			value[j++] = str[i++];
-	}
-	return (value[j] = '\0', value);
-}
-
-char	*get_arg_expand_for_here_doc(char *str)
-{
-	char	**arr_words;
-
-	int (i), (j), (index_word);
-	arr_words = (char **)allocation_2d(count_wrd_expand(str) + 1);
-	index_word = 0;
-	i = 0;
-	while (str && str[++i] != '\0' )
-	{
-		if (str[i - 1] == '$'  &&  (ft_isalpha(str[i]) || str[i] == '?' ))
-		{
-			j = 0;
-			arr_words[index_word] = (char *)allocation(len_key_expand(&str[i])
-					+ 1);
-			if (str[i] == '?')
-			{
-				i++;
-				arr_words[index_word++] = ft_strdup_env("?");
-			}
-			else
-			{
-				while (str[i] && ft_isalpha(str[i]))
-					arr_words[index_word][j++] = str[i++];
-				arr_words[index_word++][j] = '\0';
-			}
-		}
-	}
-	arr_words[index_word] = NULL;
-	return (remplace_keys_to_values_here_doc(str, arr_words));
-}
-
-char	*get_value_from_env(char *key)
-{
-	char	**env;
-	int		index_key;
-
-	index_key = 0;
-	env = g_data.env;
-	while (env && env[index_key])
-	{
-		if (!ft_strncmp(env[index_key], key, ft_strlen(key)))
-			return (sstrdup(&env[index_key][ft_strlen(key) + 1]));
-		index_key++;
-	}
-	return (sstrdup(""));
-}
-
 char	*remplace_keys_to_values(char *str, char **arr)
 {
 	char	*value;
-	t_quote quote;
+	t_quote	quote;
 
 	int (j), (i), (index_value), (k);
 	arr = get_values_the_keys(arr);
@@ -123,16 +26,11 @@ char	*remplace_keys_to_values(char *str, char **arr)
 	k = 0;
 	while (str && str[i])
 	{
-		check_quote(&quote,str[i]);
-		if (quote.type_quote != e_single_quote && str[i] == '$' && (ft_isalpha(str[i + 1]) || str[i + 1] == '?' ))
+		check_quote(&quote, str[i]);
+		if (condition_exp(str, i, quote))
 		{
-			i++;
+			i = skip_all_word(str, i + 1);
 			index_value = 0;
-			if (str[i] == '?')
-				i++;
-			else
-				while (str[i] && ft_isalpha(str[i]))
-					i++;
 			while (arr && arr[k] != NULL && arr[k][index_value] != '\0')
 				value[j++] = arr[k][index_value++];
 			k++;
@@ -143,59 +41,99 @@ char	*remplace_keys_to_values(char *str, char **arr)
 	return (value[j] = '\0', value);
 }
 
-char* get_arg_expand(char* str)
+char	*get_word(char *str, int *index)
+{
+	char	*arr_words;
+	int		j;
+	int		i;
+
+	if (!str)
+		return (NULL);
+	i = *index;
+	j = 0;
+	arr_words = (char *)allocation(len_key_expand(&str[i]) + 1);
+	while (str[i] && ft_isalpha(str[i]))
+		arr_words[j++] = str[i++];
+	arr_words[j] = '\0';
+	*index = i;
+	return (arr_words);
+}
+
+char	*get_arg_expand(char *str)
 {
 	char	**arr_words;
-	t_quote quote;
+	t_quote	quote;
 
-	int (i), (j), (index_word);
+	int (i), (index_word);
 	arr_words = (char **)allocation_2d(count_wrd_expand(str) + 1);
 	index_word = 0;
 	i = 0;
 	insilize_quote(&quote);
-	check_quote(&quote,str[i]);
-	while (str && str[++i] != '\0' )
+	check_quote(&quote, str[i]);
+	while (str && str[i] && str[++i] != '\0')
 	{
-		if (quote.type_quote != e_single_quote && str[i - 1] == '$'  &&  (ft_isalpha(str[i]) || str[i] == '?' ))
+		if (quote.type_quote != e_single_quote && str[i - 1] == '$'
+			&& (ft_isalpha(str[i]) || str[i] == '?'))
 		{
-			j = 0;
-			arr_words[index_word] = (char *)allocation(len_key_expand(&str[i])
-					+ 1);
 			if (str[i] == '?')
-			{
 				i++;
+			if (str[i - 1] == '?')
 				arr_words[index_word++] = ft_strdup_env("?");
-			}
 			else
-			{
-				while (str[i] && ft_isalpha(str[i]))
-					arr_words[index_word][j++] = str[i++];
-				arr_words[index_word++][j] = '\0';
-			}
+				arr_words[index_word++] = get_word(str, &i);
 		}
-		check_quote(&quote,str[i]);
+		check_quote(&quote, str[i]);
 	}
 	arr_words[index_word] = NULL;
 	return (remplace_keys_to_values(str, arr_words));
 }
 
-void	ft_expand(t_token **lst_to, t_l *head)
+t_token	*deleted_null_term_expend(t_token *token)
 {
-	t_token	*lst_token;
+	t_token	*temp;
+	t_token	*temp_token;
+	t_token	*stock;
+
+	temp = token;
+	temp_token = temp;
+	while (temp_token && ((char *)temp_token->content)[0] == '\0')
+		temp_token = temp_token->next;
+	temp = temp_token;
+	while (temp)
+	{
+		stock = temp;
+		if (temp && temp->next && ((char *)temp->next->content)[0] == '\0')
+			temp = temp->next->next;
+		else
+			temp = temp->next;
+		stock->next = temp;
+		stock = stock->next;
+		temp = stock;
+	}
+	temp_token = check_names_token(temp_token);
+	return (temp_token);
+}
+
+int	ft_expand(t_token **lst_to, t_l *head)
+{
+	t_token	*lst_tok;
 	t_token	*temp_token;
 	int		i;
 
-	lst_token = *lst_to;
-	temp_token = lst_token;
+	(void)head;
+	lst_tok = *lst_to;
+	temp_token = lst_tok;
 	i = 0;
-	while (lst_token)
+	while (lst_tok)
 	{
-		if (lst_token->type_token != e_delimeter_here_doc)
-		{
-			lst_token->content = delete_quote(get_arg_expand(lst_token->content));
-		}
+		if (lst_tok->type_token != e_delimeter_here_doc)
+			lst_tok->content = delete_quote(get_arg_expand(lst_tok->content));
 		i++;
-		lst_token = lst_token->next;
+		lst_tok = lst_tok->next;
 	}
+	temp_token = deleted_null_term_expend(temp_token);
 	*lst_to = temp_token;
+	if (!temp_token)
+		return (1);
+	return (0);
 }

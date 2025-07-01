@@ -6,131 +6,98 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/04 14:34:45 by oachbani          #+#    #+#             */
-/*   Updated: 2025/04/19 17:28:22 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/11 10:06:15 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-char	*get_home(char **env)
+void	replace_pwd(void)
 {
-	char **tmp;
+	int		i;
+	char	*str;
+	char	*tmp;
 
-	tmp = env;
-	while (*tmp)
-	{
-		if (ft_strncmp(*tmp, "HOME=", 5) == 0)
-			return (*tmp + 5);
-		tmp++;
-	}
-	return (NULL);
-}
-
-void	update_pwd(char *cwd)
-{
-	int	i;
-	char *join;
-	char *joinnl;
-
-	join = ft_strjoin("PWD=", cwd);
 	i = 0;
+	str = ft_strjoin_gc("PWD=", g_data.cwd);
 	while (g_data.env[i])
 	{
 		if (ft_strncmp(g_data.env[i], "PWD=", 4) == 0)
 		{
-			printf("%s  before \n", g_data.env[i]);
-			g_data.env[i] = join;
-			printf("this is join %s\n", join);
-			printf("%s after \n", g_data.env[i]);
+			tmp = g_data.env[i];
+			g_data.env[i] = ft_strdup_env(str);
+			gc_free_one(tmp);
+			break ;
 		}
 		i++;
-	}
-	free(join);
-}
-
-void	update_oldpwd(char *cwd)
-{
-	int	i;
-	char *join;
-
-	join = ft_strjoin("OLDPWD=", cwd);
-	i = 0;
-	while (g_data.env[i])
-	{
-		if (ft_strncmp(g_data.env[i], "OLDPWD=", 7) == 0)
-		{
-			printf("%s\n", g_data.env[i]);
-			g_data.env[i] = join;
-		}
-		i++;
-	}
-	ft_get_envdata();
-	// update_pwd(g_data.cwd);
-	free(join);
-}
-
-int	cd_home(void)
-{
-	const char *directory;
-	int 		i;
-
-	directory = get_home(g_data.env);
-	if (!directory)
-	{
-		printf("minishell : cd: HOME not set\n");
-		return(-1);
-	}
-	i = chdir (directory);
-	if (i == -1)
-	{
-		printf("minishell : failed to change the directory \n");
-		return (-1);
 	}
 }
 
 int	cd_path(char *str)
 {
-	int i;
+	int		i;
+	char	*oldpwd;
 
+	oldpwd = getcwd(NULL, 0);
 	i = chdir(str);
 	if (i == -1)
 	{
 		printf("minishell : cd: %s: No such file or directory\n", str);
 		return (-1);
 	}
+	replace_oldpwd(oldpwd);
+	ft_get_envdata();
+	replace_pwd();
+	return (0);
 }
 
 char	*get_oldpwd(char **env)
 {
-	char **tmp;
+	char	**tmp;
+	char	*oldpwd;
+	size_t	len;
 
 	tmp = env;
 	while (*tmp)
 	{
 		if (ft_strncmp(*tmp, "OLDPWD=", 7) == 0)
-			return (*tmp + 7);
+		{
+			len = ft_strlen(*tmp + 7);
+			oldpwd = allocation(len + 1);
+			if (oldpwd)
+				ft_strlcpy(oldpwd, *tmp + 7, len + 1);
+			return (oldpwd);
+		}
 		tmp++;
 	}
 	return (NULL);
 }
 
+void	error_custom(char *str, int exit)
+{
+	printf("%s\n", str);
+	g_data.exit_status = exit;
+}
+
 void	re_cd(char *str)
 {
-	int		status;
-	int		pos;
+	int	status;
+	int	pos;
 
 	pos = 0;
 	status = 0;
-
 	ft_get_envdata();
-	if (!str || !ft_strcmp(str, "--"))
+	if (!str)
 		status = cd_home();
 	else if (!ft_strcmp(str, "."))
 		status = cd_path(g_data.cwd);
 	else if (!ft_strcmp(str, "-"))
 	{
 		if (!g_data.oldpwd)
-			printf("minishell: cd: OLDPWD not set");
+		{
+			error_custom("minishell: cd: OLDPWD not set", 1);
+			return ;
+		}
 		status = cd_path(g_data.oldpwd);
 		if (status != -1)
 			printf("%s\n", g_data.cwd);
@@ -140,4 +107,3 @@ void	re_cd(char *str)
 	if (status == -1)
 		g_data.exit_status = 1;
 }
-

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_garage_colector_2ptr.c                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aybouatr <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 01:28:32 by aybouatr          #+#    #+#             */
-/*   Updated: 2025/03/20 01:28:36 by aybouatr         ###   ########.fr       */
+/*   Updated: 2025/05/11 19:41:42 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ void	ft_lstadd_2d_back(t_2d_list **lst, t_2d_list *new)
 	temp->next = new;
 }
 
-void	clean_memory_or_save_2d(void **ptr, e_status status)
+void	clean_memory_or_save_2d(void **ptr, t_status status)
 {
 	static t_2d_list	*save_add;
 

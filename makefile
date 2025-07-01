@@ -1,68 +1,73 @@
 NAME = minishell
 
-# Include files
-INCLUDES = minishell.h  # Corrected the typo "includ" to "INCLUDES"
+INCLUDES = minishell.h
 
-# Source files
 SRCS = main.c parsing/ft_garage_colector_ptr.c  parsing/ft_garage_colector_2ptr.c  parsing/ft_expand.c\
 	 parsing/ft_help_funct_for_tokenization.c parsing/ft_tokenization.c  parsing/ft_parsing.c  \
 	 parsing/ft_functin_help_for_expand.c parsing/ft_utils.c parsing/ft_garammer_and_deleted_quote.c\
 	 wildcards_bns/ft_utils_wildcards.c wildcards_bns/ft_wildcards.c parsing/ft_grbg_env.c parsing/ft_strdup_env.c\
 	 builtins/re_cd.c builtins/re_echo.c builtins/re_env.c builtins/re_exit.c builtins/re_export.c \
-	 builtins/re_pwd.c builtins/re_unset.c  execution/execution.c execution/utils_exec.c 
+	 builtins/re_pwd.c builtins/re_unset.c  execution/execution.c execution/utils_exec.c \
+	 ft_here_doc/ft_here_doc.c ft_here_doc/ft_here_doc_utils.c parsing/ft_functin_help2_for_expand.c\
+	 execution/execution1.c execution/execution2.c execution/execution3.c execution/execution4.c \
+     execution/execution5.c execution/execution6.c execution/execution7.c builtins/cd_utils.c \
+	 builtins/export_utils.c builtins/export_utils2.c parsing/ft_helpers.c
+
+RESET		=	\033[0m
+RESET2		=	'\033[0m'
+GREEN		=	'\033[32m'
+GRAY		=	'\033[2;37m'
+ITALIC		=	'\033[3m'
+RED			=	\033[0;31m
 
 
-# Object files: Replace .c with .o
-OBJECTS = $(SRCS:.c=.o)  # Corrected "Object" to "OBJECTS" (consistent naming convention)
+OBJECTS = $(SRCS:.c=.o)
 
-# Compiler and flags
 CC = cc
 
-# Linker flags for readline library
-LDFLAGS = -lreadline -L/usr/local/opt/readline/lib  # Add readline library and specify its path if needed
+LDFLAGS = -lreadline -L/usr/local/opt/readline/lib
 
-# Debugging flags: -g (to include debug information), -Og (optimize for debugging), -g3 (maximum debug info)
-CFLAGS = -I/usr/local/opt/readline/include -g3 -Og
+CFLAGS = -I/usr/local/opt/readline/include -Wall -Wextra -Werror -g3 
 
-# Path to libft directory
 LIBFT_DIR = libft
 
-# Include libft headers
 LIBFT_INCLUDE = $(LIBFT_DIR)
 
-# Object files for libft
 LIBFT_OBJECTS = $(LIBFT_DIR)/libft.a
 
-# Default target
 all: $(NAME)
 
-# Rule to build the final executable
 $(NAME): $(OBJECTS) $(LIBFT_OBJECTS)
-	$(CC) $(OBJECTS) $(LIBFT_OBJECTS) $(LDFLAGS) -o $(NAME)  # Link with readline library and libft.a
+	@echo  "$(RED)"
+	@echo  "\t ███▄ ▄███▓ ██▓ ███▄    █  ██▓  ██████  ██░ ██ ▓█████  ██▓     ██▓"
+	@echo  "\t▓██▒▀█▀ ██▒▓██▒ ██ ▀█   █ ▓██▒▒█ █    ▒ ▓██░ ██▒▓█   ▀ ▓██▒    ▓██▒"
+	@echo  "\t▓██    ▓██░▒██▒▓██  ▀█ ██▒▒██▒░ ▓██▄   ▒██▀▀██░▒███   ▒██░    ▒██░"
+	@echo  "\t▒██    ▒██ ░██░▓██▒  ▐▌██▒░██░  ▒   ██▒░▓█ ░██ ▒▓█  ▄ ▒██░    ▒██░"
+	@echo  "\t▒██▒   ░██▒░██░▒██░   ▓██░░██░▒██████▒▒░▓█▒░██▓░▒████▒░██████▒░██████▒"
+	@echo  "\t░ ▒░   ░  ░░▓  ░ ▒░   ▒ ▒ ░▓  ▒ ▒▓▒ ▒ ░ ▒ ░░▒░▒░░ ▒░ ░░ ▒░▓  ░░ ▒░▓  ░"
+	@echo  "\t░  ░      ░ ▒ ░░ ░░   ░ ▒░ ▒ ░░ ░▒  ░ ░ ▒ ░▒░ ░ ░ ░  ░░ ░ ▒  ░░ ░ ▒  ░"
+	@echo  "\t░      ░    ▒ ░   ░   ░ ░  ▒ ░░ ░  ░   ░  ░░ ░   ░     ░ ░     ░ ░"
+	@echo  "\t       ░    ░           ░  ░        ░   ░  ░  ░   ░  ░    ░  ░    ░  ░"
+	@echo  "$(RESET)"	
+	@$(CC) $(OBJECTS) $(LIBFT_OBJECTS) $(LDFLAGS) -o $(NAME)  # Link with readline library and libft.a
 
-# Rule to compile .c to .o
 %.o: %.c $(INCLUDES)
-	$(CC) $(CFLAGS) -c $< -o $@  # Compile with readline include path
+	@$(CC) $(CFLAGS) -c $< -o $@ 
 
-# Build libft library
 $(LIBFT_OBJECTS):
-	$(MAKE) -C $(LIBFT_DIR)
+	@$(MAKE) -s -C $(LIBFT_DIR)
 
-# Clean up build artifacts
 clean:
-	rm -f $(OBJECTS)
+	@rm -f $(OBJECTS)
+	@echo $(ITALIC)$(GRAY) "     - removing the object files ..." $(RESET2)
+	@$(MAKE) -s -C $(LIBFT_DIR) clean
 
-	# Clean up libft object files
-	$(MAKE) -C $(LIBFT_DIR) clean
-
-# Clean up everything, including the executable and libft
 fclean: clean
-	rm -f $(NAME)
+	@rm -f $(NAME)
+	@echo $(ITALIC)$(GRAY) "     - removing the object files and the executable $(NAME)..." $(RESET2)
+	@$(MAKE) -s -C $(LIBFT_DIR) fclean
 
-	# Clean up libft library
-	$(MAKE) -C $(LIBFT_DIR) fclean
-
-# Rebuild the project
 re: fclean all
 
-.PHONY: all clean fclean re $(LIBFT_OBJECTS)
+.PHONY: all clean fclean re
+.SECONDARY:

@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 01:28:09 by aybouatr          #+#    #+#             */
-/*   Updated: 2025/04/16 10:56:30 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/11 19:41:42 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,7 +41,7 @@ t_token	*ft_tokennew(void *content)
 	return (head);
 }
 
-void	clean_memory_or_save(void *ptr, e_status status)
+void	clean_memory_or_save(void *ptr, t_status status)
 {
 	static t_list	*save_add;
 
@@ -60,7 +60,6 @@ void	clean_memory(const char *meesage, int nb_exit)
 	clean_memory_or_save(NULL, clean);
 	if (nb_exit != 0)
 		printf("%s", meesage);
-	g_data.exit_status = nb_exit;
 }
 
 void	*allocation(size_t nbr_byte)

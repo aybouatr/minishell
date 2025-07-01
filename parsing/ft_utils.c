@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_utils.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aybouatr <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 01:31:11 by aybouatr          #+#    #+#             */
-/*   Updated: 2025/03/20 01:31:14 by aybouatr         ###   ########.fr       */
+/*   Updated: 2025/05/07 11:32:02 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,9 +46,12 @@ int	is_spaces(char c)
 	return (c == ' ' || c == '\t');
 }
 
-char	*process_token_with_quote(char *str, t_quote* quote, int *counter, short *check)
+char	*process_token_with_quote(char *str, t_quote *quote, int *counter,
+		short *check)
 {
-	while (*str && is_not_opertor(*str, *quote) && (!is_spaces(*str) || quote->status_quote == e_open))
+	(void)counter;
+	while (*str && is_not_opertor(*str, *quote) && (!is_spaces(*str)
+			|| quote->status_quote == e_open))
 	{
 		check_quote(quote, *str);
 		if ((*str == '$' && (*(str + 1) == '"' || *(str + 1) == '\''))

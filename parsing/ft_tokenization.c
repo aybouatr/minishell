@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 01:30:15 by aybouatr          #+#    #+#             */
-/*   Updated: 2025/04/12 11:56:07 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/11 19:43:28 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,42 +40,6 @@ int	count_nbr_token(char *str, int *counter, t_l **head)
 	return (0);
 }
 
-// int	count_nbr_token(char *str, int *counter, t_l **head)
-// {
-// 	short	check;
-// 	t_quote	quote;
-
-// 	insilize_quote(&quote);
-// 	while (str && *str)
-// 	{
-// 		check = 0;
-// 		while (*str && is_spaces(*str))
-// 			str++;
-// 		if (*str && is_not_opertor(*str, quote) && (!is_spaces(*str)
-// 				|| quote.status_quote == e_open))
-// 			(*counter)++;
-// 		while (*str && is_not_opertor(*str, quote) && (!is_spaces(*str)
-// 				|| quote.status_quote == e_open))
-// 		{
-// 			check_quote(&quote, *str);
-// 			if ((*str == '$' && (*(str + 1) == '"' || *(str + 1) == '\''))
-//						|| is_shoold_expand(quote, *str))
-// 				check = 1;
-// 			str++;
-// 		}
-// 		if (check == 1)
-// 			ft_add_back(head, ft_new((*counter - 1)));
-// 		if (!is_not_opertor(*str, quote))
-// 		{
-// 			skip_token(&str);
-// 			(*counter)++;
-// 		}
-// 	}
-// 	if (quote.status_quote == e_open)
-// 		return (1);
-// 	return (0);
-// }
-
 char	*ft_operator_token(char **str)
 {
 	if (*str[0] == '<' && str[0][1] == '<')
@@ -102,7 +66,7 @@ char	*ft_operator_token(char **str)
 	return (sstrdup(">"));
 }
 
-e_type_token	get_type_token(e_type_token prev, char *content)
+t_type_token	get_type_token(t_type_token prev, char *content)
 {
 	if (!ft_strcmp(content, "<"))
 		return (e_redir_in);
@@ -150,7 +114,7 @@ char	**split_to_token(char *input_line, t_l **head)
 	char	**arr;
 	t_quote	quote;
 
-	int (i), (token_count), (token_index);
+	int (token_count), (token_index);
 	h_ead = NULL;
 	token_index = 0;
 	token_count = 0;

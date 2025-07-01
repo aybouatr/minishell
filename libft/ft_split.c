@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/10/24 12:14:06 by oachbani          #+#    #+#             */
-/*   Updated: 2025/04/18 16:38:29 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/11 19:31:51 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,6 @@ char	**ft_split(char const *s, char c)
 
 	if (!s)
 		return (NULL);
-	p = NULL;
 	p = (char **)ft_calloc((count_words(s, c) + 1), sizeof(char *));
 	if (!p)
 		return (NULL);

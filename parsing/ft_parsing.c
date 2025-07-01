@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_parsing.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aybouatr <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 01:28:53 by aybouatr          #+#    #+#             */
-/*   Updated: 2025/03/20 01:28:56 by aybouatr         ###   ########.fr       */
+/*   Updated: 2025/05/11 19:45:26 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,21 +20,6 @@ int	is_opertor_or_redire(t_token *token)
 		&& token->type_token != e_delimeter_here_doc)
 		return (1);
 	return (0);
-}
-
-int	len_not_oper_redir(t_token *pos)
-{
-	int	counter;
-
-	counter = 1;
-	if (pos)
-		pos = pos->next;
-	while (!is_opertor_or_redire(pos))
-	{
-		pos = pos->next;
-		counter++;
-	}
-	return (counter);
 }
 
 void	split_token_to_opertor(t_token *Head, t_2d_list **lst_token)
@@ -83,165 +68,26 @@ t_2d_list	*rename_tokents(t_2d_list *lst_t, t_token *list)
 	return (lst);
 }
 
-int is_redir(t_2d_list* lst)
-{
-	if (lst && (lst->type_token == e_redir_app || lst->type_token == e_here_doc || lst->type_token == e_redir_ou || lst->type_token == e_redir_in))
-		return (1);
-	return (0);
-}
-
-int is_next_redir_and_next_next_arg(t_2d_list* lst)
-{
-	if (lst && is_redir(lst) && lst->next && lst->next->type_token == e_cmd)
-		return (1);
-	return (0);
-}
-
-char** str_joine_2d(char** arr1,char** arr2)
-{
-	int counter1;
-	int counter2;
-	int i;
-	char** new_arr;
-
-	counter1 = 0;
-	counter2 = 0;
-	i = 0;
-	while (arr1 && arr1[counter1])
-		counter1++;
-	while (arr2 && arr2[counter2])
-		counter2++;
-	new_arr = allocation_2d((counter1 + counter2 + 1));
-	counter1 = 0;
-	counter2 = 0;
-	while (arr1 && arr1[counter1])
-		new_arr[i++] = arr1[counter1++];
-	while (arr2 && arr2[counter2])
-		new_arr[i++] = arr2[counter2++];
-	new_arr[i] = NULL;
-	return (new_arr);
-}
-
-t_2d_list* deplacement_arg_near_cmd(t_2d_list* lst_token)
-{
-	t_2d_list* temp;
-	t_2d_list* head;
-	char**     save_arg;
-	int check;
-
-	temp = lst_token;
-	head =    temp;
-	check = 0;
-	while (temp)
-	{
-		if ( temp->next && temp->type_token == e_cmd && is_next_redir_and_next_next_arg(temp->next))
-		{
-			temp->content = str_joine_2d(temp->content,temp->next->next->content);
-			temp->next->next = temp->next->next->next;
-			temp = temp->next->next;
-		}
-		else
-			temp = temp->next;
-	}
-	return (head);
-}
-
-// ------------- start here_doc -------
-
-
-int read_from_here_doc(char* limiter,int *status)
-{
-	int satus_child;
-	int fd_pip[2];
-	pid_t id_pro;
-	int check;
-	char	*line, *new;
-
-	id_pro = fork();
-	if (id_pro == -1)
-	{
-		clean_memory("faild fork",1);
-		clean_env();
-		exit(1);
-	}
-	if (id_pro == 0)
-	{
-		signal(SIGINT, SIG_DFL);
-        signal(SIGQUIT, SIG_IGN);
-		while (1)
-		{
-			check = check_ifquoted(limiter);
-			limiter = delete_quote(limiter);
-			line = get_next_line(0);
-			close(fd_pip[1]);
-			for_norm(check, &line, &new);
-			if (cold_arms(new, limiter) == 2)
-				break;
-			write(fd_pip[0], new, ft_strlen(new));
-			free(line);
-			line = get_next_line(0);
-		}
-		free(line);
-		exit(EXIT_SUCCESS);
-	}
-	else
-	{
-		close(fd_pip[0]);
-      	waitpid(id_pro, &satus_child, 0);
-        if (WIFSIGNALED(satus_child))
-		{
-			*status = 1;
-		}
-	}
-	return (fd_pip[0]);
-}
-
-int ft_here_doc(t_2d_list** lst_token)
-{
-	t_2d_list* temp_lst;
-	t_2d_list* head_lst;
-	int status;
-
-	temp_lst = *lst_token;
-	head_lst = temp_lst;
-	status = 0;
-	while (temp_lst && status == 0)
-	{
-		if (temp_lst->type_token == e_here_doc)
-		{
-			temp_lst->content[0] = ft_itoa(read_from_here_doc(temp_lst->content[1],&status));
-			temp_lst->content[1] = NULL;
-		}
-		
-		temp_lst = temp_lst->next;
-	}
-	*lst_token = head_lst;
-	return (status);
-}
-
 int	ft_parsing(char *str, t_2d_list **lst_tok)
 {
 	t_l			*head;
 	t_token		*list;
 	char		**tokens;
 	t_2d_list	*lst_token;
-	int			i;
 
 	list = NULL;
-	i = 0;
 	tokens = split_to_token(str, &head);
 	if (!tokens)
 		return (1);
 	assign_name_to_token(tokens, &list);
 	if (1 == ft_grammer(list))
 		return (1);
-	//ft_expend_spicifique_cases(list,head);
-	//hand_quote(&list);
-	ft_expand(&list, head);
+	if (1 == ft_expand(&list, head))
+		return (1);
 	split_token_to_opertor(list, &lst_token);
 	lst_token = rename_tokents(lst_token, list);
 	lst_token = deplacement_arg_near_cmd(lst_token);
-	if(ft_here_doc(&lst_token) == 1)
+	if (ft_here_doc(&lst_token) == 1)
 		return (1);
 	*lst_tok = lst_token;
 	return (0);

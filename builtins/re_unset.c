@@ -6,22 +6,21 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/09 12:47:16 by oachbani          #+#    #+#             */
-/*   Updated: 2025/04/18 16:45:35 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/11 10:06:30 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-char **del_tab_2d_arr(int del)
+char	**del_tab_2d_arr(int del)
 {
-	// g_data.env[del] = NULL;
 	while (g_data.env[del + 1])
 	{
-		g_data.env[del] = g_data.env[del+1];
+		g_data.env[del] = g_data.env[del + 1];
 		del++;
 	}
 	g_data.env[del] = NULL;
-	return(g_data.env);
+	return (g_data.env);
 }
 
 int	search_the_env(char *search)
@@ -33,16 +32,17 @@ int	search_the_env(char *search)
 	len = ft_strlen(search);
 	while (g_data.env[i])
 	{
-		if (!ft_strncmp(g_data.env[i] , search, len))
-			if (g_data.env[i][len] == '=')
-				return(i);
+		if (!ft_strncmp(g_data.env[i], search, len))
+			if (g_data.env[i][len] == '=' || !g_data.env[i][len])
+				return (i);
 		i++;
 	}
-	return(-1);
+	return (-1);
 }
+
 void	re_unset(char **str)
 {
-	int removable;
+	int	removable;
 	int	i;
 
 	if (!str || !*str)

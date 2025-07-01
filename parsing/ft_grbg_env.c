@@ -6,7 +6,7 @@
 /*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 15:19:40 by aybouatr          #+#    #+#             */
-/*   Updated: 2025/04/18 16:35:24 by oachbani         ###   ########.fr       */
+/*   Updated: 2025/05/11 19:41:42 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,14 +27,14 @@ t_2d_list	*ft_2d_lstnew_env(void **conten)
 char	*ft_itoa_grbg(int n)
 {
 	char	*p;
-	int		i;
-	long	nbr;
 
+	long (i), (nbr);
 	nbr = n;
 	i = len(n);
 	p = (char *)allocation((i + 1) * sizeof(char));
 	if (!p)
 		return (NULL);
+	p[i] = '\0';
 	if (nbr < 0)
 	{
 		p[0] = '-';
@@ -53,10 +53,11 @@ char	*ft_itoa_grbg(int n)
 	return (p);
 }
 
-void	clean_env_or_save(char *ptr, e_status status)
+void	clean_env_or_save(char *ptr, t_status status)
 {
 	static t_list	*save_add;
 
+	g_data.save_head_gc = save_add;
 	if (status == save)
 	{
 		ft_lstadd_back(&save_add, ft_lstnew(ptr));
@@ -66,7 +67,7 @@ void	clean_env_or_save(char *ptr, e_status status)
 		ft_lstclear(&save_add, del);
 }
 
-void	clean_env_or_save_2d(char **ptr, e_status status)
+void	clean_env_or_save_2d(char **ptr, t_status status)
 {
 	static t_2d_list	*save_add;
 	t_2d_list			*temp;
@@ -90,6 +91,7 @@ void	clean_env_or_save_2d(char **ptr, e_status status)
 
 void	clean_env(void)
 {
+	free(g_data.cwd);
 	clean_env_or_save(NULL, clean);
 	clean_env_or_save_2d(NULL, clean);
 }

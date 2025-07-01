@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_help_funct_for_tokenization.c                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aybouatr <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: oachbani <oachbani@student.1337.ma>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 01:30:43 by aybouatr          #+#    #+#             */
-/*   Updated: 2025/03/20 01:30:46 by aybouatr         ###   ########.fr       */
+/*   Updated: 2025/05/11 19:43:28 by oachbani         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ char	*sstrdup(const char *s)
 	size_t	i;
 	char	*p;
 
+	if (!s)
+		return (NULL);
 	i = ft_strlen(s);
 	p = (char *)allocation((i + 1));
 	i = 0;
@@ -94,7 +96,7 @@ void	assign_name_to_token(char **tokens, t_token **list)
 	t_token			*lst_token;
 	t_token			*temp;
 	int				i;
-	e_type_token	typ_token;
+	t_type_token	typ_token;
 
 	i = -1;
 	lst_token = NULL;
