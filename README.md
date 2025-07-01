@@ -2,66 +2,100 @@
 
 ## Introduction
 
-**minishell** is a simplified Unix shell implementation in C. It is designed to help understand how fundamental components of a shell work, such as parsing commands, managing processes, and handling input/output.
+**minishell** is a simplified Unix shell implemented in C. It demonstrates how a shell works at a fundamental level, including parsing commands, managing processes, connecting commands with pipes, and handling input/output redirection.
+
+---
 
 ## Concepts and How minishell Works
 
 ### 1. Tokenization
 
-- **Tokenization** is the first step after reading user input.
-- The shell splits the command line into meaningful pieces called tokens (e.g., command names, arguments, operators like |, <, >).
-- It handles quotes (`'`, `"`) so that arguments with spaces are kept together.
+- minishell reads the user's command line input and splits it into tokens (words and operators).
+- It handles quotes so that text inside `'` or `"` is treated as one piece.
 - Example:  
   Input: `echo "Hello World" | grep Hello > out.txt`  
   Tokens: `echo`, `"Hello World"`, `|`, `grep`, `Hello`, `>`, `out.txt`
 
 ### 2. Parsing
 
-- After tokenization, minishell parses the tokens to understand the command structure.
-- It builds a representation (like a tree or list) to know what the user wants:  
-  - Which are commands
-  - What arguments they have
+- After tokenization, minishell organizes the tokens to understand the structure:  
+  - Which are commands  
+  - Their arguments  
   - Where pipes or redirections are used
+- Parsing creates an internal representation so the shell knows how to execute the command chain correctly.
 
 ### 3. Processes and Execution
 
-- For each command (especially when separated by pipes), minishell creates one or more processes using `fork()`.
-- The shell distinguishes between:
-    - **Built-in commands** (like `cd`, `exit`) which run in the shell process itself
-    - **External commands** (like `ls`, `grep`) which require creating a new child process
-- For external commands, minishell:
-    1. Forks a new process
-    2. In the child, replaces the process image with the command using `execve()`
-    3. The parent waits for its children to finish
+- minishell uses `fork()` to create new processes for commands.
+- **Built-in commands** (like `cd`, `exit`) are handled directly in the shell process.
+- **External commands** (like `ls`, `grep`):  
+    1. minishell forks a child process  
+    2. The child process runs the command with `execve()`  
+    3. The parent waits for the child to finish
 
 ### 4. Pipes
 
-- Pipes (`|`) allow the output of one command to become the input of the next.
-- minishell sets up a pipe (using `pipe()`) between the processes.
-- It redirects the standard output (`stdout`) of the left command to the pipe's write end, and the standard input (`stdin`) of the right command to the pipe's read end.
-- Example:  
-  `ls | grep .c`  
-  - `ls` writes its output into the pipe  
-  - `grep .c` reads that output as input
+- Pipes (`|`) let the output of one command be the input of another.
+- minishell sets up pipes using `pipe()`.
+- It connects the standard output of the left process to the standard input of the right process.
 
 ### 5. Redirections
 
-- minishell supports input (`<`), output (`>`) and append (`>>`) redirections.
-- Before executing a command, it sets up file descriptors so input/output goes to or from the right files.
+- minishell supports redirections:
+  - Input: `< file`
+  - Output: `> file`
+  - Append: `>> file`
+- It adjusts file descriptors before running a command so input or output is read/written from the correct file.
 
 ### 6. Environment Variables
 
-- minishell keeps track of environment variables.
+- minishell manages environment variables internally.
 - You can use and modify them with `export`, `unset`, etc.
-- Commands can access variables using `$VAR` syntax, which minishell expands before execution.
+- minishell expands variables like `$USER` before executing commands.
 
 ### 7. Signal Handling
 
-- minishell manages signals like `Ctrl+C` (SIGINT) for interruption, mimicking standard shells.
+- minishell handles signals like `Ctrl+C` to interrupt a running command, similar to a real shell.
 
 ### 8. Error Handling
 
-- Errors in parsing, execution, or system calls are reported clearly to the user.
+- minishell reports errors for invalid commands, syntax problems, or system errors with clear messages.
+
+---
+
+## How to Use minishell
+
+1. **Compile:**  
+   Run `make` in the project directory to build the shell.
+
+2. **Start minishell:**  
+   Run `./minishell` to launch.
+
+3. **Type commands:**  
+   You can use most basic shell commands, pipes, and redirections as in a normal shell.
+
+4. **Exit:**  
+   Use the command `exit` to quit.
+
+---
+
+## Teamwork
+
+This project was developed by **Ayoub** and **Otman** working together.
+
+- **Ayoub** focused on building the parsing part (input reading, tokenization, and command structure).
+- **Otman** focused on the execution part (process management, pipes, redirections).
+- We collaborated on integration, debugging, and ensuring the shell worked smoothly.
+
+### What We Learned Working as a Team
+
+- How to split a big project into smaller, manageable parts and assign responsibilities.
+- The importance of clear communication, especially when integrating parsing and execution components.
+- How to use version control (Git) for collaborative development and code review.
+- How to resolve merge conflicts and work towards a common goal.
+- The value of peer review and helping each other debug and improve code quality.
+
+---
 
 ## Summary
 
@@ -69,4 +103,5 @@ minishell is an educational project that demonstrates:
 - How to split and interpret user input
 - How to manage processes and connect them with pipes
 - How to handle file redirections, environment variables, and signals
-- The basics of building a command-line shell from scratch in C
+- The basics of building a command-line shell in C
+- The importance of teamwork in software development
